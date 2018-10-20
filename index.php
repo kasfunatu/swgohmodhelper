@@ -14,9 +14,8 @@ if (!file_exists("complete.".$me. ".txt")) {
     $gotETLV = 0;
 } 
 if($gotETLV==0){
-    error_reporting(E_ALL);ini_set('display_errors',1);
-    require_once 'api-swgoh-kas.php';
-    $swgoh = new ApiSwgohHelpKas(array("swgoh.help:username", "swgoh.help:password"));
+    
+    $swgoh = new ApiSwgohHelpKas();
     $swgoh->allycode = $me;
     $swgoh->createcachefile();
 }
