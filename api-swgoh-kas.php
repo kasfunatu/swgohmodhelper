@@ -1,45 +1,10 @@
 <?php
+ 
 
-require_once 'api-swgoh-help.php';
-
-class ApiSwgohHelpKas extends ApiSwgohHelp {
+class ApiSwgohHelpKas     {
 
 
-    public function login($returntoken = 0) {
-        parent::login();
-        if ($returntoken == 1) {
-            print $this->token . '<br/><hr/><br/>';
-        }
-    }
-
-    public function fetchAPI($url, $criteria = null, $lang = null) {
-        try {
-            if (!isset($this->token)) {
-                $this->login();
-            }
-            $curl = curl_init(); 
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://api.swgoh.help/swgoh/' . $url . '',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => $criteria,
-                CURLOPT_HTTPHEADER => array(
-                    "Content-Type: application/json",
-                    $this->token),
-            ));
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-            curl_close($curl);
-            return $response;
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
+    
 
    public function checkcache($type) {
         $useCache = 1;
@@ -81,44 +46,7 @@ class ApiSwgohHelpKas extends ApiSwgohHelp {
         $json = json_decode($jsonraw);
         return $json;
     }
-
-    function loadfromhelp($type, $id = "") {
-        if ($id != "") {
-            $otype = "cache/" . $id . ".help." . $type;
-        } else {
-            $otype = "cache/help." . $type;
-        }
-
-        if ($this->checkcache($otype) == 1) {
-            $jsonraw = file_get_contents($otype . ".txt");
-        } else {
-            if ($type == "me") {
-                $jsonraw = $this->fetchAPI('player', '{"allycode": ' . $id . ', "language": "eng_us", "project": { "name": 1, "level": 1, "guildName": 1, "stats": 1,"roster" :1 }}');
-            } elseif ($type == "skillist") {
-                $jsonraw = $this->fetchAPI('data', '{"collection":"skillList","language":"eng_us","enums":true,"project":{"id":1,"abilityReference":1,"isZeta":1}} ');
-            } elseif ($type == "abilities") {
-                $jsonraw = $this->fetchAPI('data', '{"collection":"abilityList","language":"eng_us","project":{"id":1,"nameKey":1,"descKey":1,"tierList":{"count":1},"useAsReinforcementDesc":1}}');
-            } elseif ($type == "abilitiesFull") {
-                $jsonraw = $this->fetchAPI('data', '{"collection":"abilityList","language":"eng_us","project":{"id":1,"nameKey":1,"descKey":1,"tierList":{"descKey":1},"useAsReinforcementDesc":1}}');
-            }
-            try {
-                $fp = fopen($otype . ".txt", 'w');
-                fwrite($fp, $jsonraw);
-                fclose($fp);
-            } catch (Exception $e) {
-                $jsonraw = file_get_contents($otype . ".txt");
-            }
-        }
-
-        $json = json_decode($jsonraw);
-
-        return $json;
-    }
-
-    function loadmycollection($id) {
-        $tncln = $this->loadfromhelp("me", $id);
-        return $tncln[0]->roster;
-    }
+ 
 
     public $mytooncollection = [];
     public $myzetacollection = [];
